@@ -1,0 +1,124 @@
+!!! Practica de Laboratorio 2.1.4.5
+
+!!Configruarcion VTP para Sw2
+enable
+configure terminal 
+hostname S2
+
+vtp domain CCNA 
+vtp mode server 
+vtp password cisco 
+
+interface fa0/3
+switchport mode trunk
+exit
+
+vlan 10
+name Red
+vlan 20
+name Blue
+vlan 30
+name Yellow 
+vlan 99 
+name Admin
+end
+
+show vlan brief !Verificamos que se hayan creado todas las VLAN´s
+
+configure terminal 
+
+interface fa0/18
+switchport mode access 
+switchport access vlan 20
+exit
+
+interface vlan 99
+ip address 192.168.99.2 255.255.255.0
+no shutdown
+
+!!Configruarción VTP para Sw1
+enable 
+configure terminal 
+hostname S1
+
+vtp domain CCNA 
+vtp mode client 
+vtp password cisco 
+
+interface fa0/1
+switchport mode dynamic desirable
+
+interface fa0/3
+switchport mode trunk
+exit
+
+vlan 10 !!No te debe permitir crearla 
+
+interface fa0/6
+switchport mode access
+switchport access vlan 10
+exit
+
+interface vlan 99
+ip address 192.168.99.1 255.255.255.0
+no shutdown
+exit
+
+vtp mode transparent 
+
+vlan 2000
+end
+
+show vlan brief
+
+!!Configruarción VTP para Sw3
+enable 
+configure terminal 
+hostname S3
+
+vtp domain CCNA 
+vtp mode client 
+vtp password cisco 
+
+interface f0/1
+switchport mode trunk
+exit 
+
+interface fa0/18
+switchport mode access 
+switchport access vlan 10
+exit
+
+interface vlan 99
+ip address 192.168.99.3 255.255.255.0
+no shutdown
+
+
+!!Consultar estado de VTP 
+show vtp status 			   !consultar a todos los Sw's
+show interface f0/1 switchport !consultar a los Sw 1 y 2
+
+!!mostar las interfaces troncales
+show interface trunk !consultar a los Sw 1 y 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
