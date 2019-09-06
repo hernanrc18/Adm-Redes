@@ -1,0 +1,857 @@
+!!!!!S1
+en
+conf t
+no ip domain-lookup
+Hostname S1
+service password-encryption
+Banner motd "Warning"
+enable secret class
+line vty 0 5
+password cisco
+login
+logging syn
+
+line console 0
+password cisco
+login
+logging syn
+
+int range f0/1-24
+shutdown
+int f0/6
+no shutdown
+vlan 99
+name Management
+vlan 10
+name Staff
+
+int f0/6
+switchport mode access
+switchport access vlan 10
+
+interface vlan 99
+ip address 192.168.99.11 255.255.255.0
+no shutdown
+do wr
+
+
+
+
+
+!!!!!S2
+en
+conf t
+
+no ip domain-lookup
+Hostname S2
+service password-encryption
+Banner motd "Warning"
+enable secret class
+line vty 0 5
+password cisco
+login
+logging syn
+
+line console 0
+password cisco
+login
+logging syn
+
+int range f0/1-24
+shutdown
+int f0/18
+no shutdown
+vlan 99
+name Management
+vlan 10
+name Staff
+
+int f0/18
+switchport mode access
+switchport access vlan 10
+
+interface vlan 99 
+ip address 192.168.99.12 255.255.255.0
+no shutdown
+do wr
+
+
+
+
+!!!!!S3
+en
+conf t
+no ip domain-lookup
+Hostname S3
+service password-encryption
+Banner motd "Warning"
+enable secret class
+line vty 0 5
+password cisco
+login
+logging syn
+
+line console 0
+password cisco
+login
+logging syn
+
+int range f0/1-24
+shutdown
+int f0/18
+no shutdown
+vlan 99
+name Management
+vlan 10
+name Staff
+
+int f0/18
+switchport mode access
+switchport access vlan 10
+
+interface vlan 99
+ip address 192.168.99.13 255.255.255.0
+no shutdown
+do wr
+
+
+
+!!! Configurar PAGP!!!
+!!!S1!!!!
+en
+conf t 
+interface range f0/3-4
+channel-group 1 mode desirable
+no shutdown
+
+
+
+!!!S3!!!
+en
+conf t
+interface range f0/3-4
+channel-group 1 mode auto
+no shutdown
+
+
+
+!!! Configurar puertos truncales!!!
+!!!S1!!!
+en
+conf t
+interface port-channel 1
+switchport mode trunk
+switchport trunk native vlan 99
+
+!!!S3!!!
+en
+conf t
+interface port-channel 1
+switchport mode trunk
+switchport trunk native vlan 99
+
+
+!!!Configurar LACP!!!
+!!!S1!!!
+en
+conf t
+interface range f0/1-2
+switchport mode trunk
+switchport trunk native vlan 99
+channel-group 2 mode active
+no shutdown
+
+
+!!!S2!!!
+en
+conf t
+interface range f0/1-2
+switchport mode trunk
+switchport trunk native vlan 99
+channel-group 2 mode passive
+no shutdown
+
+
+!!!Configure LACP Between S2 and S3!!!
+!!!S2!!!
+interface range f0/3-4
+switchport mode trunk
+switchport trunk native vlan 99
+channel-group 3 mode active
+no shutdown
+
+
+!!!S3!!!
+interface range f0/1-2
+switchport mode trunk
+switchport trunk native vlan 99
+channel-group 3 mode passive
+no shutdown
+
+
+
+S3#sh run
+Building configuration...
+
+Current configuration : 2380 bytes
+!
+! Last configuration change at 01:00:48 UTC Mon Mar 1 1993
+!
+version 15.0
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname S3
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$rMa9$e/Z/aDTPB7YB7X4X0sRt..
+!
+no aaa new-model
+system mtu routing 1500
+!
+!
+no ip domain-lookup
+!
+!
+!
+!
+!
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+!
+vlan internal allocation policy ascending
+!
+!
+!
+!
+!
+!
+interface Port-channel1
+ switchport trunk native vlan 99
+ switchport mode trunk
+!
+interface Port-channel3
+ switchport trunk native vlan 99
+ switchport mode trunk
+!
+interface FastEthernet0/1
+ switchport trunk native vlan 99
+ switchport mode trunk
+ channel-group 3 mode passive
+!
+interface FastEthernet0/2
+ switchport trunk native vlan 99
+ switchport mode trunk
+ channel-group 3 mode passive
+!
+interface FastEthernet0/3
+ switchport trunk native vlan 99
+ switchport mode trunk
+ channel-group 1 mode auto
+!
+interface FastEthernet0/4
+ switchport trunk native vlan 99
+ switchport mode trunk
+ channel-group 1 mode auto
+!
+interface FastEthernet0/5
+ shutdown
+!
+interface FastEthernet0/6
+ shutdown
+!
+interface FastEthernet0/7
+ shutdown
+!
+interface FastEthernet0/8
+ shutdown
+!
+interface FastEthernet0/9
+ shutdown
+!
+interface FastEthernet0/10
+ shutdown
+!
+interface FastEthernet0/11
+ shutdown
+!
+interface FastEthernet0/12
+ shutdown
+!
+interface FastEthernet0/13
+ shutdown
+!
+interface FastEthernet0/14
+ shutdown
+!
+interface FastEthernet0/15
+ shutdown
+!
+interface FastEthernet0/16
+ shutdown
+!
+interface FastEthernet0/17
+ shutdown
+!
+interface FastEthernet0/18
+ switchport access vlan 10
+ switchport mode access
+!
+interface FastEthernet0/19
+ shutdown
+!
+interface FastEthernet0/20
+ shutdown
+!
+interface FastEthernet0/21
+ shutdown
+!
+interface FastEthernet0/22
+ shutdown
+!
+interface FastEthernet0/23
+ shutdown
+!
+interface FastEthernet0/24
+ shutdown
+!
+interface GigabitEthernet0/1
+!
+interface GigabitEthernet0/2
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+interface Vlan99
+ ip address 192.168.99.13 255.255.255.0
+!
+ip http server
+ip http secure-server
+logging esm config
+banner motd ^CWarning^C
+!
+line con 0
+ password 7 094F471A1A0A
+ logging synchronous
+ login
+line vty 0 4
+ password 7 1511021F0725
+ logging synchronous
+ login
+line vty 5
+ password 7 1511021F0725
+ logging synchronous
+ login
+line vty 6 15
+ login
+!
+end
+
+
+
+==============================================================================
+S2#sh run
+Building configuration...
+
+Current configuration : 2371 bytes
+!
+! Last configuration change at 00:48:46 UTC Mon Mar 1 1993
+!
+version 15.0
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname S2
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$CCj8$LyR2/dwXsTYmQEo3spDR30
+!
+no aaa new-model
+system mtu routing 1500
+!
+!
+no ip domain-lookup
+!
+!
+!
+!
+!
+!
+!
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+!
+vlan internal allocation policy ascending
+!
+!
+!
+!
+!
+!
+interface Port-channel2
+ switchport trunk native vlan 99
+ switchport mode trunk
+!
+interface Port-channel3
+ switchport trunk native vlan 99
+ switchport mode trunk
+!
+interface FastEthernet0/1
+ switchport trunk native vlan 99
+ switchport mode trunk
+ channel-group 2 mode passive
+!
+interface FastEthernet0/2
+ switchport trunk native vlan 99
+ switchport mode trunk
+ channel-group 2 mode passive
+!
+interface FastEthernet0/3
+ switchport trunk native vlan 99
+ switchport mode trunk
+ channel-group 3 mode active
+!
+interface FastEthernet0/4
+ switchport trunk native vlan 99
+ switchport mode trunk
+ channel-group 3 mode active
+!
+interface FastEthernet0/5
+ shutdown
+!
+interface FastEthernet0/6
+ shutdown
+!
+interface FastEthernet0/7
+ shutdown
+!
+interface FastEthernet0/8
+ shutdown
+!
+interface FastEthernet0/9
+ shutdown
+!
+interface FastEthernet0/10
+ shutdown
+!
+interface FastEthernet0/11
+ shutdown
+!
+interface FastEthernet0/12
+ shutdown
+!
+interface FastEthernet0/13
+ shutdown
+!
+interface FastEthernet0/14
+ shutdown
+!
+interface FastEthernet0/15
+ shutdown
+!
+interface FastEthernet0/16
+ shutdown
+!
+interface FastEthernet0/17
+ shutdown
+!
+interface FastEthernet0/18
+ switchport access vlan 10
+ switchport mode access
+!
+interface FastEthernet0/19
+ shutdown
+!
+interface FastEthernet0/20
+ shutdown
+!
+interface FastEthernet0/21
+ shutdown
+!
+interface FastEthernet0/22
+ shutdown
+!
+interface FastEthernet0/23
+ shutdown
+!
+interface FastEthernet0/24
+ shutdown
+!
+interface GigabitEthernet0/1
+!
+interface GigabitEthernet0/2
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+interface Vlan99
+ ip address 192.168.99.12 255.255.255.0
+!
+ip http server
+ip http secure-server
+!
+banner motd ^CWarning^C
+!
+line con 0
+ password 7 1511021F0725
+ logging synchronous
+ login
+line vty 0 4
+ password 7 094F471A1A0A
+ logging synchronous
+ login
+line vty 5
+ password 7 094F471A1A0A
+ logging synchronous
+ login
+line vty 6 15
+ login
+!
+end
+
+
+================================================================================
+
+
+Building configuration...
+
+Current configuration : 2375 bytes
+!
+version 12.2
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname S1
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$fhf1$0vefeur/GId82wkI9NaYJ1
+!
+no aaa new-model
+system mtu routing 1500
+ip subnet-zero
+!
+no ip domain-lookup
+!
+!
+!
+!
+!
+!
+!
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+!
+vlan internal allocation policy ascending
+!
+!
+!
+interface Port-channel1
+ switchport trunk native vlan 99
+ switchport mode trunk
+!
+interface Port-channel2
+ switchport trunk native vlan 99
+ switchport mode trunk
+!
+interface FastEthernet0/1
+ switchport trunk native vlan 99
+ switchport mode trunk
+ channel-group 2 mode active
+!
+interface FastEthernet0/2
+ switchport trunk native vlan 99
+ switchport mode trunk
+ channel-group 2 mode active
+!
+interface FastEthernet0/3
+ switchport trunk native vlan 99
+ switchport mode trunk
+ channel-group 1 mode desirable
+!
+interface FastEthernet0/4
+ switchport trunk native vlan 99
+ switchport mode trunk
+ channel-group 1 mode desirable
+!
+interface FastEthernet0/5
+ shutdown
+!
+interface FastEthernet0/6
+ switchport access vlan 10
+ switchport mode access
+!
+interface FastEthernet0/7
+ shutdown
+!
+interface FastEthernet0/8
+ shutdown
+!
+interface FastEthernet0/9
+ shutdown
+!
+interface FastEthernet0/10
+ shutdown
+!
+interface FastEthernet0/11
+ shutdown
+!
+interface FastEthernet0/12
+ shutdown
+!
+interface FastEthernet0/13
+ shutdown
+!
+interface FastEthernet0/14
+ shutdown
+!
+interface FastEthernet0/15
+ shutdown
+!
+interface FastEthernet0/16
+ shutdown
+!
+interface FastEthernet0/17
+ shutdown
+!
+interface FastEthernet0/18
+ shutdown
+!
+interface FastEthernet0/19
+ shutdown
+!
+interface FastEthernet0/20
+ shutdown
+!
+interface FastEthernet0/21
+ shutdown
+!
+interface FastEthernet0/22
+ shutdown
+!
+interface FastEthernet0/23
+ shutdown
+!
+interface FastEthernet0/24
+ shutdown
+!
+interface GigabitEthernet0/1
+!
+interface GigabitEthernet0/2
+!
+interface Vlan1
+ no ip address
+ no ip route-cache
+ shutdown
+!
+interface Vlan99
+ ip address 192.168.99.11 255.255.255.0
+ no ip route-cache
+!
+ip http server
+ip http secure-server
+!
+control-plane
+!
+banner motd ^CWarning^C
+!
+line con 0
+ password 7 110A1016141D
+ logging synchronous
+ login
+line vty 0 4
+ password 7 02050D480809
+ logging synchronous
+ login
+line vty 5
+ password 7 02050D480809
+ logging synchronous
+ login
+line vty 6 15
+ login
+!
+end
+
+S1#
+S1#
+S1#
+S1#
+S1#sh run
+Building configuration...
+
+Current configuration : 2375 bytes
+!
+version 12.2
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname S1
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$fhf1$0vefeur/GId82wkI9NaYJ1
+!
+no aaa new-model
+system mtu routing 1500
+ip subnet-zero
+!
+no ip domain-lookup
+!
+!
+!
+!
+!
+!
+!
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+!
+vlan internal allocation policy ascending
+!
+!
+!
+interface Port-channel1
+ switchport trunk native vlan 99
+ switchport mode trunk
+!
+interface Port-channel2
+ switchport trunk native vlan 99
+ switchport mode trunk
+!
+interface FastEthernet0/1
+ switchport trunk native vlan 99
+ switchport mode trunk
+ channel-group 2 mode active
+!
+interface FastEthernet0/2
+ switchport trunk native vlan 99
+ switchport mode trunk
+ channel-group 2 mode active
+!
+interface FastEthernet0/3
+ switchport trunk native vlan 99
+ switchport mode trunk
+ channel-group 1 mode desirable
+!
+interface FastEthernet0/4
+ switchport trunk native vlan 99
+ switchport mode trunk
+ channel-group 1 mode desirable
+!
+interface FastEthernet0/5
+ shutdown
+!
+interface FastEthernet0/6
+ switchport access vlan 10
+ switchport mode access
+!
+interface FastEthernet0/7
+ shutdown
+!
+interface FastEthernet0/8
+ shutdown
+!
+interface FastEthernet0/9
+ shutdown
+!
+interface FastEthernet0/10
+ shutdown
+!
+interface FastEthernet0/11
+ shutdown
+!
+interface FastEthernet0/12
+ shutdown
+!
+interface FastEthernet0/13
+ shutdown
+!
+interface FastEthernet0/14
+ shutdown
+!
+interface FastEthernet0/15
+ shutdown
+!
+interface FastEthernet0/16
+ shutdown
+!
+interface FastEthernet0/17
+ shutdown
+!
+interface FastEthernet0/18
+ shutdown
+!
+interface FastEthernet0/19
+ shutdown
+!
+interface FastEthernet0/20
+ shutdown
+!
+interface FastEthernet0/21
+ shutdown
+!
+interface FastEthernet0/22
+ shutdown
+!
+interface FastEthernet0/23
+ shutdown
+!
+interface FastEthernet0/24
+ shutdown
+!
+interface GigabitEthernet0/1
+!
+interface GigabitEthernet0/2
+!
+interface Vlan1
+ no ip address
+ no ip route-cache
+ shutdown
+!
+interface Vlan99
+ ip address 192.168.99.11 255.255.255.0
+ no ip route-cache
+!
+ip http server
+ip http secure-server
+!
+control-plane
+!
+banner motd ^CWarning^C
+!
+line con 0
+ password 7 110A1016141D
+ logging synchronous
+ login
+line vty 0 4
+ password 7 02050D480809
+ logging synchronous
+ login
+line vty 5
+ password 7 02050D480809
+ logging synchronous
+ login
+line vty 6 15
+ login
+!
+end

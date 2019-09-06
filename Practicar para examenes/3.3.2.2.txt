@@ -1,0 +1,118 @@
+!!! S2!!!
+Part 1: Configure VLANs
+Step 1: Enable the user ports on S2 in access mode.
+S2(config)# interface range f0/6,f0/11,f0/18
+S2(config-if-range)# switchport mode access
+S2(config-fi-range)# no shutdown
+
+Step 2: Create VLANs.
+
+!!!S1!!!
+S1(config)# vlan 10
+S1(config-vlan)# vlan 20
+S1(config-vlan)# vlan 30
+S1(config-vlan)# vlan 40
+S1(config-vlan)# vlan 50
+S1(config-vlan)# vlan 60
+S1(config-vlan)# vlan 70
+S1(config-vlan)# vlan 80
+S1(config-vlan)# vlan 99
+
+!!!!S2!!!!
+
+S2(config)# vlan 10
+S2(config-vlan)# vlan 20
+S2(config-vlan)# vlan 30
+S2(config-vlan)# vlan 40
+S2(config-vlan)# vlan 50
+S2(config-vlan)# vlan 60
+S2(config-vlan)# vlan 70
+S2(config-vlan)# vlan 80
+S2(config-vlan)# vlan 99
+
+!!!S3!!!
+S3(config)# vlan 10
+S3(config-vlan)# vlan 20
+S3(config-vlan)# vlan 30
+S3(config-vlan)# vlan 40
+S3(config-vlan)# vlan 50
+S3(config-vlan)# vlan 60
+S3(config-vlan)# vlan 70
+S3(config-vlan)# vlan 80
+S3(config-vlan)# vlan 99
+
+Step 3: Assign VLANs to switch ports.
+!!!S2!!!
+
+S2(config)# interface f0/6
+S2(config-if)# switchport access vlan 30
+S2(config-if)# interface f0/11
+S2(config-if)# switchport access vlan 10
+S2(config-if)# interface f0/18
+S2(config-if)# switchport access vlan 20
+
+Step 4: Verify the VLANs.
+Use the show vlan brief command on all switches to verify that all VLANs are registered in the VLAN table
+
+Step 5: Assign the trunks to native VLAN 99.
+
+!!!S1!!!
+S1(config)# interface range f0/1-4
+S1(config-if-range)# switchport mode trunk
+S1(config-if-range)# switchport trunk native vlan 99
+
+!!!S2!!!
+S2(config)# interface range f0/1-4
+S2(config-if-range)# switchport mode trunk
+S2(config-if-range)# switchport trunk native vlan 99
+
+!!!S3!!!
+S3(config)# interface range f0/1-4
+S3(config-if-range)# switchport mode trunk
+S3(config-if-range)# switchport trunk native vlan 99
+
+
+Step 6: Configure the management interface on all three switches with an address.
+!!!S1!!!
+
+S1(config)# interface vlan99
+S1(config-if)# ip address 172.17.99.11 255.255.255.0
+
+
+!!!S2!!!
+S2(config)# interface vlan99
+S2(config-if)# ip address 172.17.99.12 255.255.255.0
+
+
+!!!S3!!!
+S3(config)# interface vlan99
+S3(config-if)# ip address 172.17.99.13 255.255.255.0
+
+Part 2: Configure Rapid Spanning Tree PVST+ Load Balancing
+Step 1: Configure STP mode.
+
+
+S1(config)# spanning-tree mode rapid-pvst
+
+
+S2(config)# spanning-tree mode rapid-pvst
+
+
+S3(config)# spanning-tree mode rapid-pvst
+
+Step 2: Configure Rapid Spanning Tree PVST+ load balancing.
+
+S1(config)# spanning-tree vlan 1,10,30,50,70 root primary
+S2(config)# spanning-tree vlan 1,10,20,30,40,50,60,70,80,99 root secondary
+S3(config)# spanning-tree vlan 20,40,60,80,99 root primary
+
+Part 3: Configure PortFast and BPDU Guard
+Step 1: Configuring PortFast on S2.
+
+S2(config)# interface range f0/6 , f0/11 , f0/18
+S2(config-if-range)# spanning-tree portfast
+
+Step 2: Configuring BPDU Guard on S2.
+
+S2(config)# interface range f0/6 , f0/11 , f0/18
+S2(config-if-range)# spanning-tree bpduguard enable

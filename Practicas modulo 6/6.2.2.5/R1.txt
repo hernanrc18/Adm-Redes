@@ -1,0 +1,193 @@
+!R1
+!Crear la red
+enable
+configure terminal
+hostname R1
+no ip domain-lookup
+line console 0
+password cisco
+login
+logging synchronous
+line aux 0
+password cisco
+login
+line vty 0 4
+password cisco
+login
+exit
+enable secret class
+banner motd % Solo personal autorizado %
+interface f0/0
+ip address 192.168.1.1 255.255.255.0
+no shutdown
+interface s0/0/0
+ip address 10.1.1.1 255.255.255.252
+clock rate 128000
+no shutdown
+interface s0/0/1
+ip address 10.3.3.1 255.255.255.252
+no shutdown
+end
+write
+
+!EIGRP
+router eigrp 10
+network 192.168.1.0
+network 10.1.1.0 0.0.0.3
+network 10.3.3.0 0.0.0.3
+
+!Verificar
+show ip eigrp neighbors
+show ip route eigrp
+show ip route
+show ip eigrp topology
+show ip protocols
+
+!Configurar ancho de banda
+interface s0/0/0
+bandwidth 2000
+interface s0/0/1
+bandwidth 64
+router eigrp 10
+passive-interface f0/0
+
+
+!R1
+R1#sh run
+Building configuration...
+
+
+Current configuration : 1327 bytes
+!
+version 12.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R1
+!
+boot-start-marker
+boot-end-marker
+!
+logging message-counter syslog
+enable secret 5 $1$RUEg$TA9yyljV4LW6aZVmy8/vW/
+!
+no aaa new-model
+!
+dot11 syslog
+ip source-route
+!
+!
+ip cef
+!
+!
+no ip domain lookup
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+voice-card 0
+!
+!
+!
+!
+!
+archive
+ log config
+  hidekeys
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface FastEthernet0/0
+ ip address 192.168.1.1 255.255.255.0
+ duplex auto
+ speed auto
+!
+interface FastEthernet0/1
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+!
+interface Serial0/0/0
+ bandwidth 2000
+ ip address 10.1.1.1 255.255.255.252
+ clock rate 128000
+!
+interface Serial0/0/1
+ bandwidth 64
+ ip address 10.3.3.1 255.255.255.252
+ clock rate 2000000
+!
+router eigrp 10
+ passive-interface FastEthernet0/0
+ network 10.1.1.0 0.0.0.3
+ network 10.3.3.0 0.0.0.3
+ network 192.168.1.0
+ auto-summary
+!
+ip forward-protocol nd
+no ip http server
+no ip http secure-server
+!
+!
+!
+!
+!
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+!
+!
+banner motd ^C Solo personal autorizado ^C
+!
+line con 0
+ password cisco
+ logging synchronous
+ login
+line aux 0
+ password cisco
+ login
+line vty 0 4
+ password cisco
+ login
+!
+scheduler allocate 20000 1000
+end
